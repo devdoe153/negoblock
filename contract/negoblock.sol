@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 contract Ownable {
   address public owner;
-  ////////123
+  ////////123123
 
   event OwnershipRenounced(address indexed previousOwner);
   event OwnershipTransferred(
