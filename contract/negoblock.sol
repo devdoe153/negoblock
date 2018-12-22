@@ -1011,28 +1011,104 @@ contract Token721 is ERC721Token, Ownable {
 
     /** @dev Auction Market Initialize.
       */
-contract AuctionMarket is Ownable{
+contract AuctionMarket is  Ownable{
 
     // Status variable initialized
     using SafeMath for uint256;
     
-    string public name; //token name
-    string public symbol ;  // token unit
-    uint8 public decimals ; // 소수점이하
+    string public name = "NegoBlock Coin"; //token name
+    string public symbol = "neb" ;  // token unit
+    uint8 public decimals = 0 ; // 소수점이하
     
-    uint256 public totalSupply;
+    uint256 public totalSupply = 1000000;
+    uint256 public supply = 1000000;
     
     uint public nebDigits = 16;
     uint public nebModulus = 10 ** nebDigits;
+
+
+   /** @dev 생성.
+      * @param _supply 토크발행량.
+      * @param _name 토큰 이름 NEB.
+      * @param _symbol 토큰 단위 NEB.
+      * @param _decimals 소수점 이하 자릿수.
+      */
+    // 생성자
+
+    constructor(uint256 _supply, string _name, string _symbol, uint8 _decimals) {
+        balanceOf[msg.sender] = _supply;
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+        totalSupply = _supply;
+        
+    }
+
+// Member Join
+
+    /** @dev Member 회원join.
+      * @name 판매자 이름.
+      * @passwd 패스워드.
+      * @account 계좌.
+      * @mount 잔고.
+      * @isSeller 판매자냐?.
+      * @isBuyer 바이어냐?.
+      */
+    struct Members {
+        string id;
+        string name;
+        string passwd;
+        address account;
+        bool isSeller;
+        bool areyouBlack;
+
+    }
+    
+    Members[] public member; 
+    
+    function joinMember(address _eoa, string _id, string _name, string _passwd)
+    public returns(uint) 
+    {
+        uint length = member.length++;
+        member[length-1].id = _id;
+        member[length-1].name = _name;
+        member[length-1].passwd = _passwd;
+        member[length-1].account = _eoa;
+    //    member[length-1].isSeller = _memberType;
+        member[length-1].areyouBlack = false;
+        // member.push(
+        //     Members(
+        //         {
+        //             account: _eoa,
+        //             id:_id,
+        //             name:_name,
+        //             passwd:_passwd,
+        //             isSeller:_memberType,
+        //             areyouBlack:false
+        //         }
+        //         )
+        //     );
+            
+            return member.length;
+    }
+    
+     function getMembersCount() public constant returns(uint) {
+        return member.length;
+    }
+    
+    
+    
+    
+
 
    /** @dev Bidder 참여자.
       * @param addr 참여자 주소.
       * @param amount 참여자 계정잔고.
       */
-    struct Bidder { 
-        address addr;
-        uint amount;
-    }
+    // struct Bidder { 
+    //     address addr;
+    //     uint amount;
+    // }
     
    /** @dev Bidding 각각 경매장.
       * @biddingId 경매장 고유ID.
@@ -1051,25 +1127,7 @@ contract AuctionMarket is Ownable{
         uint ednBidding;
         uint closeTimeBidd;
         uint bidPrice;
-        mapping (uint => Bidder) bidders;
-    }
-
-    /** @dev Auctioneer 판매자.
-      * @name 판매자 이름.
-      * @passwd 패스워드.
-      * @account 계좌.
-      * @mount 잔고.
-      * @isSeller 판매자냐?.
-      * @isBuyer 바이어냐?.
-      */
-    struct Autioneer {
-        string name;
-        string passwd;
-        address account;
-        uint amount;
-        bool isSeller;
-        bool isBuyer;
-
+        mapping (uint => Members) bidders;
     }
 
    /** @dev item 아이템.
@@ -1104,22 +1162,18 @@ contract AuctionMarket is Ownable{
     event BlackListed(address indexed blacklist); // 블랙리스트 등록됨
     event RemoveBlackListed(address indexed blacklist); // 블랙리스트 해제됨
     event Transfer(address indexed from, address indexed to, uint256 value) ; // 송금내역
-
-   /** @dev 생성.
-      * @param _supply 토크발행량.
-      * @param _name 토큰 이름 NEB.
-      * @param _symbol 토큰 단위 NEB.
-      * @param _decimals 소수점 이하 자릿수.
-      */
-    // 생성자
-    constructor(uint256 _supply, string _name, string _symbol, uint8 _decimals) {
-        balanceOf[msg.sender] = _supply;
-        name = _name;
-        symbol = _symbol;
-        decimals = _decimals;
-        totalSupply = _supply;
-        
-    }
+    // started bidding
+    // ended bidding
+    // transfer to blacklist
+    // transfer from blacklist
+    // apply item
+    // start delivery
+    // complete delivery
+    // aproch goal Price
+    // transfer owner
+    // change owner
+    
+    
 
   /** @dev transfer 송금
       * @param _to 받는이.
@@ -1210,17 +1264,17 @@ contract AuctionMarket is Ownable{
 
    /** @dev AuctionAdmin 경매관리자
     */
-contract AuctionAdmin is AuctionMarket{
+// contract AuctionAdmin is AuctionMarket{
   
-  int8 totalBidding = 0;
-  int256 totalBiddingAmount = 0;
+//   int8 totalBidding = 0;
+//   int256 totalBiddingAmount = 0;
 
-  mapping (int => int8) public rankingBidder;
-  mapping (int => int256) public rankingAuctionPrice;
+//   mapping (int => int8) public rankingBidder;
+//   mapping (int => int256) public rankingAuctionPrice;
   
-  // auction market running endless. so, below value can be increse or decrese
-  int8 currentBiddingCount = 0;
-  int32 closedAuctionCount = 0;
+//   // auction market running endless. so, below value can be increse or decrese
+//   int8 currentBiddingCount = 0;
+//   int32 closedAuctionCount = 0;
 
 
-}
+// }
