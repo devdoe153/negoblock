@@ -142,7 +142,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
     constructor ()
     public
     {
-        _registerInterface( );
+        // _registerInterface( );
     }
 
   /**
@@ -1010,27 +1010,137 @@ contract Token721 is ERC721Token, Ownable {
  */
 
     /** @dev Auction Market Initialize.
-      * @param w Width of the rectangle.
-      * @param h Height of the rectangle.
-      * @return s The calculated surface.
-      * @return p The calculated perimeter.
       */
-contract AuctionMarket is Ownable {
+contract AuctionMarket is Ownable{
 
     // Status variable initialized
     using SafeMath for uint256;
-
+    
+    string public name; //token name
+    string public symbol ;  // token unit
+    uint8 public decimals ; // 소수점이하
+    
+    uint256 public totalSupply;
+    
     uint public nebDigits = 16;
     uint public nebModulus = 10 ** nebDigits;
-    mapping(address => bool) public blackList;
+
+   /** @dev Bidder 참여자.
+      * @param addr 참여자 주소.
+      * @param amount 참여자 계정잔고.
+      */
+    struct Bidder { 
+        address addr;
+        uint amount;
+    }
+    
+   /** @dev Bidding 각각 경매장.
+      * @biddingId 경매장 고유ID.
+      * @currentPrice 현재 시가.
+      * @startBidding 경매시작시간.
+      * @ednBidding 경매 끝시간.
+      * @closeTimeBidd 경매마감시간.
+      * @ednBidding 경매 끝시간.
+      * @bidPrice 낙찰가
+      * @bidders 참여자리스트.
+      */
+    struct Bidding {        
+        string biddingId;
+        uint currentPrice;
+        uint startBidding;
+        uint ednBidding;
+        uint closeTimeBidd;
+        uint bidPrice;
+        mapping (uint => Bidder) bidders;
+    }
+
+    /** @dev Auctioneer 판매자.
+      * @name 판매자 이름.
+      * @passwd 패스워드.
+      * @account 계좌.
+      * @mount 잔고.
+      * @isSeller 판매자냐?.
+      * @isBuyer 바이어냐?.
+      */
+    struct Autioneer {
+        string name;
+        string passwd;
+        address account;
+        uint amount;
+        bool isSeller;
+        bool isBuyer;
+
+    }
+
+   /** @dev item 아이템.
+      * @biddingPrice 희망가.
+      * @description 상세설명.
+      * @originOwner 판매자.
+      * @newOwner 낙찰자.
+      * @isSoldOut 판매완료됨?.
+      * @itemSpec 상세스펙 외부링크 oraclelize or ipfs.
+      */
+    struct item {
+      string itemName;
+      uint128 biddingPrice;
+      string description;
+      address originOwner;
+      address newOwner;
+      bool isSoldOut;
+      string itemSpec; // connect oraclelization or IPFS
+    }
+
+// mapping
+    mapping (address => bool) public blackList; // 블랙리스트
+    mapping (address => uint256 ) public balanceOf; // 각 줏주소 잔잔고
+
+    mapping (address => item ) private items; //아이템스
+
 
 // modifier list
-    modifier onlyOwner() {require(msg.sender != owner);_;}
+    modifier onlyOwner() {require(msg.sender != owner);_;} // 오너권한
 
 // event list
-    event BlackListed(address indexed blacklist);
-    event RemoveBlackListed(address indexed blacklist);
+    event BlackListed(address indexed blacklist); // 블랙리스트 등록됨
+    event RemoveBlackListed(address indexed blacklist); // 블랙리스트 해제됨
+    event Transfer(address indexed from, address indexed to, uint256 value) ; // 송금내역
 
+   /** @dev 생성.
+      * @param _supply 토크발행량.
+      * @param _name 토큰 이름 NEB.
+      * @param _symbol 토큰 단위 NEB.
+      * @param _decimals 소수점 이하 자릿수.
+      */
+    // 생성자
+    constructor(uint256 _supply, string _name, string _symbol, uint8 _decimals) {
+        balanceOf[msg.sender] = _supply;
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+        totalSupply = _supply;
+        
+    }
+
+  /** @dev transfer 송금
+      * @param _to 받는이.
+      * @param _value 송금액.
+      * @return msg.sender 보내는이 계좌.
+      * @return _to 받는이.
+      * @return _value 송금액.
+      */
+    
+    function transfer(address _to, uint256 _value){
+        require(balanceOf[msg.sender] < _value);
+        require(balanceOf[_to] + _value < balanceOf[_to]);
+        
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
+        
+        emit Transfer(msg.sender, _to, _value) ;
+        
+    }
+
+    
 
 // functions defined area
     function _blacklist(address _addr) onlyOwner {
@@ -1043,96 +1153,74 @@ contract AuctionMarket is Ownable {
         emit RemoveBlackListed(_addr);
     }
   
-    struct Bidder {
-        address addr;
-        uint amount;
-    }
-    struct Bidding {        string biddingId;        uint currentPrice;
-       uint startBidding;
-        uint ednBidding;
-        uint closeTimeBidd;
-        uint bidPrice;
-        mapping (uint => Bidder) bidders;
-    }
 
-    struct Autioneer {
-        string name;
-        string passwd;
-        address account;
-        uint amount;
-        bool isSeller;
-        bool isBuyer;
-
-    }
-
-    struct item {
-      string itemName;
-      uint128 biddingPrice;
-      string description;
-      address originOwner;
-      address newOwner;
-      bool isSoldOut;
-      string itemSpect; // connect oraclelization or IPFS
-    }
-
-    mapping (address => item ) private items;
-
-    //  setting on ther block 
+  /** @dev setAuction 경매 설정
+      */
     function setAuction(){
 
     }
    
+      /** @dev endAuction 경매 종료.
+      */
    // ending Auction()
     function endAuction(){
 
 
     }
 
+   /** @dev reportAuction 옥션 정보 공유.
+      */
     //notice to Admin
     function reportAuction(){
       
 
-      return  items;
+    //   return  items;
     }
 
+   /** @dev biddingAuction 진행중인 옥션.
+      */
     // bidding Auction
     function biddingAuction() {
-      require(curPrice <= newPrice);
 
 
     }
 
+   /** @dev noticeAuctionStatus 경매 상태 알림.
+      */
     // notification Auction Status when event Trigger
     function noticeAuctionStatus(){
 
     }
 
 
-
+   /** @dev ontheBlock 옥션 진행 과정.
+      */
   //  started Auction means expression that "On the new Block" is it funny right?  
+
     function ontheBlock(){
       // 1. apply product functions
-      noticeAcutionStatus("startAcution" , "auctiontitle");
-      setAcution();
+    //   noticeAcutionStatus("startAcution" , "auctiontitle");
+    //   setAcution();
 
-     noticeAcutionStatus("endAcution" , "auctiontitle");
-    endAuction();
+    //  noticeAcutionStatus("endAcution" , "auctiontitle");
+    // endAuction();
     }
 
 }
 
-contract AuctionAdmin {
+   /** @dev AuctionAdmin 경매관리자
+    */
+contract AuctionAdmin is AuctionMarket{
   
   int8 totalBidding = 0;
   int256 totalBiddingAmount = 0;
 
-  mapping (int => int4) public rankingBidder;
+  mapping (int => int8) public rankingBidder;
   mapping (int => int256) public rankingAuctionPrice;
   
   // auction market running endless. so, below value can be increse or decrese
-  int4 currentBiddingCount = 0;
+  int8 currentBiddingCount = 0;
   int32 closedAuctionCount = 0;
-
 
 
 }
