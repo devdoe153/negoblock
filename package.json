@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/devdoe153/negoblock/issues"
   },
-  "homepage": "https://github.com/devdoe153/negoblock#readme"
+  "homepage": "https://github.com/devdoe153/negoblock#readme",
+  "dependencies": {
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.84.0",
+    "yarn": "^1.12.3"
+  }
 }

@@ -26,7 +26,7 @@ contract KittyInterface {
             require(msg.sender == zombieToOwner[_zombieId]) ;
             _;
         }
-
+        
         function setKittyContractAddress(address _address) external onlyOwner {
             kittyContract = kittyInterface(_address);
         }
